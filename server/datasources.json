@@ -1,0 +1,16 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  
+
+  "storage": {
+    "name": "storage",
+    "connector": "loopback-component-storage-mongo-gridfs",
+    "host": "localhost",
+    "port": 27017,
+    "database": "test1"
+  }
+  
+}

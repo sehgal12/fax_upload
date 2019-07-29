@@ -1,0 +1,106 @@
+[
+  {
+    "JobId": "0fe11331-7755-49e9-9324-fa4031f75998",
+    "FaxResult": 0,
+    "ConnectTime": 67,
+    "ConnectSpeed": 26400,
+    "PagesReceived": 4,
+    "RemoteId": "Fax Server",
+    "CalledNumber": "8774901677",
+    "CallingNumber": "6176127442",
+    "ReceivedOn": "2019-05-28T16:27:28.417",
+    "DeviceId": 0,
+    "TransactionType": 0,
+    "DocumentParams": {
+      "Type": "image/tiff",
+      "Length": 136096,
+      "Hash": "c6fcae432f976dfc8b1f3ff56ff37196",
+      "Name": null
+    }
+  }
+]
+
+{
+  "_id": ObjectId("5d3eb3d64736c61ee26fb4f1"),
+  "filename": "test.tiff",
+  "contentType": "binary/octet-stream",
+  "length": 136096,
+  "chunkSize": 261120,
+  "uploadDate": ISODate("2019-07-29T08:52:38.634Z"),
+  "aliases": null,
+  "metadata": {
+    "container": "container",
+    "filename": "test.tiff",
+    "mimetype": "image/jpg",
+    "JobId": "0fe11331-7755-49e9-9324-fa4031f75998",
+    "FaxResult": 0,
+    "ConnectTime": 67,
+    "ConnectSpeed": 26400,
+    "PagesReceived": 4,
+    "RemoteId": "Fax Server",
+    "CalledNumber": "8774901677",
+    "CallingNumber": "6176127442",
+    "ReceivedOn": "2019-05-28T16:27:28.417",
+    "DeviceId": 0,
+    "TransactionType": 0,
+    "DocumentParams": {
+      "Type": "image/tiff",
+      "Length": 136096,
+      "Hash": "c6fcae432f976dfc8b1f3ff56ff37196",
+      "Name": null
+    },
+    "md5": "c6fcae432f976dfc8b1f3ff56ff37196"
+  }
+
+db.fs.files.update({
+    "_id": ObjectId("5d3eb9b04736c61ee26fb4f3")
+  },
+  {
+    "_id": ObjectId("5d3eb9b04736c61ee26fb4f3"),
+    "filename": "test.tiff",
+    "contentType": "binary/octet-stream",
+    "length": 136096,
+    "chunkSize": 261120,
+    "uploadDate": ISODate("2019-07-29T08:04:58.286Z"),
+    "aliases": null,
+    "metadata": {
+      "container": "container",
+      "filename": "test.tiff",
+      "mimetype": "image/jpg",
+      "JobId": "0fe11331-7755-49e9-9324-fa4031f75998",
+      "FaxResult": 0,
+      "ConnectTime": 67,
+      "ConnectSpeed": 26400,
+      "PagesReceived": 4,
+      "RemoteId": "Fax Server",
+      "CalledNumber": "8774901677",
+      "CallingNumber": "6176127442",
+      "ReceivedOn": "2019-05-28T16:27:28.417",
+      "DeviceId": 0,
+      "TransactionType": 0,
+      "DocumentParams": {
+        "Type": "image/tiff",
+        "Length": 136096,
+        "Hash": "c6fcae432f976dfc8b1f3ff56ff37196",
+        "Name": null
+      }
+    },
+    "md5": "c6fcae432f976dfc8b1f3ff56ff37196"
+  })
+
+
+{
+    "_id": ObjectId("5d3eb9b04736c61ee26fb4f3"),
+    "filename": "test.tiff",
+    "contentType": "binary/octet-stream",
+    "length": 136096,
+    "chunkSize": 261120,
+    "uploadDate": ISODate("2019-07-29T09:17:36.515Z"),
+    "aliases": null,
+    "metadata": {
+      "container": "container",
+      "filename": "test.tiff",
+      "mimetype": "image/jpg"
+    },
+    "md5": "c6fcae432f976dfc8b1f3ff56ff37196"
+  }
