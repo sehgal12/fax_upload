@@ -67,12 +67,13 @@ app.use('/process_fax', function(req, res, next) {
 
         var objs = JSON.parse(result.body);
         for (let i = 0; i < objs.length; i++) {
-          var fileName = objs[i].DocumentParams.Hash;
-          var faxFileName;
+          var faxFileName = objs[i].DocumentParams.Hash;
           if (objs[i].DocumentParams.Type === 'image/tiff') {
-              faxFileName = fileName + '.tiff';
+              faxFileName += '.tiff';
           } else if (objs[i].DocumentParams.Type === 'application/pdf') {
-              faxFileName = fileName + '.pdf';
+              faxFileName += '.pdf';
+          } else {
+            throw new Error('unhandled mimetype');
           }
 
           // parsing binary data from base64 FaxImage response
@@ -84,14 +85,8 @@ app.use('/process_fax', function(req, res, next) {
             else console.log(faxFileName + ' saved to ' + saveDir + '!');
           });
 
-          // parsing metadata, all except FaxImage
+          // remove faxImage element from the object
           delete objs[i].FaxImage;
-          var jsonMetadata = JSON.stringify(objs[i]);
-          var metadataFileName = fileName + '.json';
-          fs.writeFile(path.join(saveDir, metadataFileName), jsonMetadata, 'utf-8', function(err) {
-            if (err) console.error(err);
-            else console.log(metadataFileName + ' saved to ' + saveDir + '!');
-          });
 
           // saving file to mongoDB
           Grid.mongo = mongoose.mongo;
@@ -103,7 +98,7 @@ app.use('/process_fax', function(req, res, next) {
                 filename: faxFileName,
                 mode: 'w',
                 content_type: objs[i].DocumentParams.Type,
-                metadata: objs[i]
+                metadata: objs[i],
               });
               fs.createReadStream(path.join(saveDir, faxFileName)).pipe(streamwriter);
               streamwriter.on('close', function(file) {
@@ -111,22 +106,16 @@ app.use('/process_fax', function(req, res, next) {
               });
             } else {
               console.error('No GridFS object found!');
+              res.status(500).send('Internal Server Error!');
             }
           });
-
         }
+        console.log('All fax files successfully added to MongoDB');
+        res.status(201).send('Fax file(s) successfully added to database');
       } else {
-        console.error("Unable to connect to Database!");
+        console.error('Unable to connect to Database!');
+        res.status(503).send('Failed to connect to server database, please try later!');
       }
-      //   request.post({ url: url, formData: formData }, function (err, httpResponse, body) {
-      //     if (err) {
-      //       return console.error('upload failed:', err);
-      //     }
-      //     console.log('Upload successful!  Server responded with:', body);
-      //   });
-
-      //   res.send("Fax file is successfully uploaded");
-      // })
     });
 });
 
