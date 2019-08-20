@@ -3,14 +3,16 @@
     "name": "db",
     "connector": "memory"
   },
-  
+
 
   "storage": {
     "name": "storage",
     "connector": "loopback-component-storage-mongo-gridfs",
-    "host": "localhost",
+    "host": "127.0.0.1",
     "port": 27017,
-    "database": "test1"
+    "database": "ambit",
+    "user": "thealpha",
+    "password": "pass123"
   }
-  
+
 }

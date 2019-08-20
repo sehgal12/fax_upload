@@ -79,11 +79,11 @@ app.use('/process_fax', function(req, res, next) {
           // parsing binary data from base64 FaxImage response
           var base64Data = objs[i].FaxImage;
           var binaryData = new Buffer(base64Data, 'base64').toString('binary');
+          // declare path to faxFile  in local storage
+          var pathFaxFile = path.join(saveDir, faxFileName);
           // saving fax image to user's directory for storing through mongoDb
-          fs.writeFile(path.join(saveDir, faxFileName), binaryData, 'binary', function(err) {
-            if (err) console.error(err);
-            else console.log(faxFileName + ' saved to ' + saveDir + '!');
-          });
+          fs.writeFileSync(pathFaxFile, binaryData, 'binary');
+          console.log(faxFileName + ' saved to ' + saveDir + '!');
 
           // remove faxImage element from the object
           delete objs[i].FaxImage;
@@ -100,9 +100,10 @@ app.use('/process_fax', function(req, res, next) {
                 content_type: objs[i].DocumentParams.Type,
                 metadata: objs[i],
               });
-              fs.createReadStream(path.join(saveDir, faxFileName)).pipe(streamwriter);
+              fs.createReadStream(pathFaxFile).pipe(streamwriter);
               streamwriter.on('close', function(file) {
                 console.log('file uploaded to mongoDB successfully');
+                fs.remove(pathFaxFile);
               });
             } else {
               console.error('No GridFS object found!');
