@@ -8,7 +8,9 @@
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 var request = require('request');
+const os = require('os');
 const fs = require('fs-extra');
+const path = require('path')
 var promise =require('promise');
 var url = 'http://localhost:3000/api/faxes/container/upload'
 
@@ -37,47 +39,55 @@ function decodeBase64Image(dataString) {
   return response;
 }
 
-
-app.use('/process_fax', function (req, res, next) {
-
-  request.get('http://50.200.140.121:33935/fax', function (err, result) {
-    if (err) throw err;
-    var obj = JSON.parse(result.body);
-    // for( i in obj){
-
-
-    // }
-    var imageBuffer = decodeBase64Image(obj[1].FaxImage);
-    fs.writeFile('test.tiff', imageBuffer.data, function (err) { if (err) throw err;
-      console.log("entering form data");
-      var formData = {
-    
-        
-        custom_file: {
-          value: fs.createReadStream(__dirname + '/..' + '/test.tiff'),
-          options: {
-            // filename: 'test,tiff',
-            contentType: 'image/jpg'
-          }
-        }
-      };
-      
-      request.post({ url: url, formData: formData }, function (err, httpResponse, body) {
-        if (err) {
-          return console.error('upload failed:', err);
-        }
-        console.log('Upload successful!  Server responded with:', body);
+app.use('/process_fax', function(req, res, next) {
+    const saveDir = path.join(os.homedir() + '/fax_downs');
+    if (!fs.existsSync(saveDir)){
+      fs.mkdirsSync(saveDir, function(err) {
+        if (err) console.error(err);
+        else console.log('Dir Created');
       });
-    
-      res.send("Fax file is successfully uploaded");
-    })
-})
+    }
+    request.get('http://50.200.140.121:33935/fax', function(err, result) {
+      if (err) throw err;
+      var objs = JSON.parse(result.body);
+      for (let i = 0; i < objs.length; i++) {
+        var fileName = objs[i].DocumentParams.Hash;
+        var faxFileName;
+        if (objs[i].DocumentParams.Type === 'image/tiff') {
+            faxFileName = fileName + '.tiff';
+        } else if (objs[i].DocumentParams.Type === 'application/pdf') {
+            faxFileName = fileName + '.pdf';
+        }
 
+        // parsing binary data from base64 FaxImage response
+        var base64Data = objs[i].FaxImage;
+        var binaryData = new Buffer(base64Data, 'base64').toString('binary');
+        // saving fax image to user's directory for storing through mongoDb
+        fs.writeFile(path.join(saveDir, faxFileName), binaryData, 'binary', function(err) {
+          if (err) console.error(err);
+          else console.log(faxFileName + ' saved to ' + saveDir + '!');
+        });
 
-  
+        // parsing metadata, all except FaxImage
+        delete objs[i].FaxImage;
+        var jsonMetadata = JSON.stringify(objs[i]);
+        var metadataFileName = fileName + '.json';
+        fs.writeFile(path.join(saveDir, metadataFileName), jsonMetadata, 'utf-8', function(err) {
+          if (err) console.error(err);
+          else console.log(metadataFileName + ' saved to ' + saveDir + '!');
+        });
+      }
 
-        
+      //   request.post({ url: url, formData: formData }, function (err, httpResponse, body) {
+      //     if (err) {
+      //       return console.error('upload failed:', err);
+      //     }
+      //     console.log('Upload successful!  Server responded with:', body);
+      //   });
 
+      //   res.send("Fax file is successfully uploaded");
+      // })
+    });
 });
 
 
