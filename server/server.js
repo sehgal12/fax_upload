@@ -38,9 +38,11 @@ app.use('/process_fax', async function(req, res, next) {
   request.get('http://50.200.140.121:33935/fax', function(err, result){
     try{
       localGridFSConnector.uploadFax(err, result);
+      res.status(201).send('Fax file(s) successfully added to database');
     } catch (e) {
       console.log('failed to upload fax');
       console.error(e);
+      res.status(500).send('Internal Server Error!');
     }
   });
 });
