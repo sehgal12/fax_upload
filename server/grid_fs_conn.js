@@ -20,7 +20,17 @@ module.exports = class GridFSConnector {
         else console.log('Dir Created');
       });
     }
-  }
+  };
+
+  _connectToMongo() {
+    // connect to database
+    mongoose.connect(this._DBURI, {useMongoClient: true});
+    mongoose.connection.on('error', (err) => {
+      console.log('Connection error: ' + err);
+      res.status(500).send('Internal Server Error!');
+    });
+    mongoose.connection.on('open', () => {console.log('connection established to database'); });
+  };
 
   uploadFax(err, result) {
     if (err) throw err;
@@ -51,13 +61,7 @@ module.exports = class GridFSConnector {
       // remove faxImage element from the object
       delete objs[i].FaxImage;
     }
-    // connect to database
-    mongoose.connect(this._DBURI, {useMongoClient: true});
-    mongoose.connection.on('error', (err) => {
-      console.log('Connection error: ' + err);
-      res.status(500).send('Internal Server Error!');
-    });
-    mongoose.connection.on('open', () => {console.log('connection established to database'); });
+    this._connectToMongo();
     // setting Grid storage to mongoose connection
     Grid.mongo = mongoose.mongo;
     mongoose.connection.once('open', async function() {
