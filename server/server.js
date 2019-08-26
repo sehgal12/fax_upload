@@ -34,6 +34,7 @@ app.start = function () {
   });
 };
 
+// Test upload functionality
 app.use('/process_fax', async function(req, res, next) {
   request.get('http://50.200.140.121:33935/fax', function(err, result){
     if (err){
@@ -51,24 +52,30 @@ app.use('/process_fax', async function(req, res, next) {
   });
 });
 
+// Test download method
+// Change filename to a valid entry in mongoDB
 app.use('/download_fax', async function(req, res, next) {
   try {
-    localGridFSConnector.downloadFax("/home/thealpha/fax_downs/c6fcae432f976dfc8b1f3ff56ff37196.tiff", res);
+    localGridFSConnector.downloadFax("filename", res);
   } catch(err){
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
 });
 
+// Test metadata download method
+// Change filename to a valid entry in mongoDB
 app.use('/download_metadata', async function(req, res, next) {
   try {
-    localGridFSConnector.getFaxMetadata("/home/thealpha/fax_downs/c6fcae432f976dfc8b1f3ff56ff37196.tiff", res);
+    localGridFSConnector.getFaxMetadata("filename", res);
   } catch(err){
     console.error(err);
     res.status(500).send('Internal Server Error');
   }
 });
 
+// Test search method
+// Entry a valid query as the input
 app.use('/query_fax', async function(req, res, next) {
   try {
     localGridFSConnector.searchFax('{"contentType": "image/tiff"}', res);
