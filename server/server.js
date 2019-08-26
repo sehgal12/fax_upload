@@ -36,6 +36,10 @@ app.start = function () {
 
 app.use('/process_fax', async function(req, res, next) {
   request.get('http://50.200.140.121:33935/fax', function(err, result){
+    if (err){
+      console.error(err);
+      res.status(404).send('Failed to fetch information from the provided URI');
+    }
     try{
       localGridFSConnector.uploadFax(err, result);
       res.status(201).send('Fax file(s) successfully added to database');
@@ -45,6 +49,33 @@ app.use('/process_fax', async function(req, res, next) {
       res.status(500).send('Internal Server Error!');
     }
   });
+});
+
+app.use('/download_fax', async function(req, res, next) {
+  try {
+    localGridFSConnector.downloadFax("/home/thealpha/fax_downs/c6fcae432f976dfc8b1f3ff56ff37196.tiff", res);
+  } catch(err){
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.use('/download_metadata', async function(req, res, next) {
+  try {
+    localGridFSConnector.getFaxMetadata("/home/thealpha/fax_downs/c6fcae432f976dfc8b1f3ff56ff37196.tiff", res);
+  } catch(err){
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.use('/query_fax', async function(req, res, next) {
+  try {
+    localGridFSConnector.searchFax('{"contentType": "image/tiff"}', res);
+  } catch(err){
+    console.error(err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 // Bootstrap the application, configure models, datasources and middleware.

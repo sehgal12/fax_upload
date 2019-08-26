@@ -30,9 +30,11 @@ module.exports = class GridFSConnector {
       res.status(500).send('Internal Server Error!');
     });
     mongoose.connection.on('open', () => {console.log('connection established to database'); });
+    // setting Grid storage to mongoose connection
+    Grid.mongo = mongoose.mongo;
   };
 
-  uploadFax(err, result) {
+  uploadFax(result) {
     if (err) throw err;
     var objs = JSON.parse(result.body);
     var filePaths = [];
@@ -62,15 +64,13 @@ module.exports = class GridFSConnector {
       delete objs[i].FaxImage;
     }
     this._connectToMongo();
-    // setting Grid storage to mongoose connection
-    Grid.mongo = mongoose.mongo;
     mongoose.connection.once('open', async function() {
       console.log('connection opened for uploading');
       var gridfs = Grid(mongoose.connection.db);
       if (gridfs) {
         for (let i = 0; i < filePaths.length; i++) {
           var streamwriter = gridfs.createWriteStream({
-            filename: filePaths[i],
+            filename: path.basename(filePaths[i]),
             mode: 'w',
             content_type: objs[i].DocumentParams.Type,
             metadata: objs[i],
@@ -92,4 +92,89 @@ module.exports = class GridFSConnector {
       }, 3000 * filePaths.length);
     });
   };
+
+
+  searchFax(query, res){
+    this._connectToMongo();
+    mongoose.connection.once('open', async function() {
+      console.log('connection opened for downloading');
+      var gridfs = Grid(mongoose.connection.db);
+      if (gridfs) {
+        gridfs.files.find(query).toArray(function(err, files) {
+          if(!files || files.length === 0) {
+            return res.status(404).send('No matching files found for query: '+query);
+          }
+          res.set('Content-Type', 'application/json');
+          return res.status(200).send(files);
+        })
+      } else {
+        console.error('No GridFS object found');
+        return res.status(500).send('Internal Server Error!');
+      }
+      await setTimeout(() => {
+        console.log('fax files sent for query: '+query);
+        mongoose.connection.close();
+        console.log('database connection closed');
+      }, 3000);
+    });
+  }
+
+
+  downloadFax(faxFileName, res){
+    this._connectToMongo();
+    mongoose.connection.once('open', async function() {
+      console.log('connection opened for downloading');
+      var gridfs = Grid(mongoose.connection.db);
+      if (gridfs) {
+        gridfs.files.find({filename: faxFileName}).toArray(function(err, files) {
+          if(!files || files.length === 0) {
+            return res.status(404).send('No matching files found!');
+          }
+          var readstream = gridfs.createReadStream({
+            filename: files[0].filename
+          });
+          res.writeHead(200, {
+            "Content-Disposition": "attachment;filename=" + files[0].filename,
+            'Content-Type': files[0].contentType,
+            'Content-Length': files[0].metadata.DocumentParams.Length
+          });
+          return readstream.pipe(res);
+        })
+      } else {
+        console.error('No GridFS object found');
+        return res.status(500).send('Internal Server Error!');
+      }
+      await setTimeout(() => {
+        console.log('fax file with name '+faxFileName+' sent successfully');
+        mongoose.connection.close();
+        console.log('database connection closed');
+      }, 3000);
+    });
+  }
+
+
+  getFaxMetadata(faxFileName, res){
+    this._connectToMongo();
+    mongoose.connection.once('open', async function() {
+      console.log('connection opened for downloading');
+      var gridfs = Grid(mongoose.connection.db);
+      if (gridfs) {
+        gridfs.files.find({filename: faxFileName}).toArray(function(err, files) {
+          if(!files || files.length === 0) {
+            return res.status(404).send('No matching files found!');
+          }
+          res.set('Content-Type', 'application/json');
+          return res.status(200).send(files[0].metadata);
+        })
+      } else {
+        console.error('No GridFS object found');
+        return res.status(500).send('Internal Server Error!');
+      }
+      await setTimeout(() => {
+        console.log('metadata for fax file with name '+faxFileName+' sent successfully');
+        mongoose.connection.close();
+        console.log('database connection closed');
+      }, 3000);
+    });
+  }
 }
