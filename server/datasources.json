@@ -8,11 +8,8 @@
   "storage": {
     "name": "storage",
     "connector": "loopback-component-storage-mongo-gridfs",
-    "host": "127.0.0.1",
+    "host": "localhost",
     "port": 27017,
-    "database": "ambit",
-    "user": "thealpha",
-    "password": "pass123"
+    "database": "test1",
   }
-
 }
