@@ -10,6 +10,6 @@
     "connector": "loopback-component-storage-mongo-gridfs",
     "host": "localhost",
     "port": 27017,
-    "database": "test1",
+    "database": "test1"
   }
 }
