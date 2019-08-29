@@ -78,7 +78,7 @@ app.use('/download_metadata', async function(req, res, next) {
 // Entry a valid query as the input
 app.use('/query_fax', async function(req, res, next) {
   try {
-    localGridFSConnector.searchFax('{"contentType": "image/tiff"}', res);
+    localGridFSConnector.searchFax({"metadata.JobId": "0fe11331-7755-49e9-9324-fa4031f75998"}, res);
   } catch(err){
     console.error(err);
     res.status(500).send('Internal Server Error');
