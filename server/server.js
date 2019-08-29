@@ -42,7 +42,7 @@ app.use('/process_fax', async function(req, res, next) {
       res.status(404).send('Failed to fetch information from the provided URI');
     }
     try{
-      localGridFSConnector.uploadFax(err, result);
+      localGridFSConnector.uploadFax(result);
       res.status(201).send('Fax file(s) successfully added to database');
     } catch (e) {
       console.log('failed to upload fax');
